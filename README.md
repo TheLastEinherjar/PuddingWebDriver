@@ -1,5 +1,5 @@
-
-A util class for selenium webdrivers so you have more time to focus on more important matters, like taco quality and world domination.
+# PuddingWebDriver:
+Welcome to the world of PuddingWebDriver, where tacos, robots, and death rays coexist in harmony. This Python script is designed to push the boundaries of conventional science and help automate your "web browsing" experience.
 
 ## Features
 
@@ -51,4 +51,4 @@ driver.add_cookies(cookies, domain)
 driver.add_xpi_files(xpi_file_paths: list)
 ```
 
-#### Yes this was write by an ai ; p
+> Yes this was write by an ai ;p
