@@ -20,7 +20,6 @@ class PuddingWebDriver:
             WebDriverWait(self.driver, timeout).until(lambda x: title in x.title)
             return True
         except (TimeoutException) as e:
-            print(f"Exception encountered: {e}")
             return False
 
     def click_element(self, identifier, timeout=10):
@@ -29,7 +28,6 @@ class PuddingWebDriver:
             element.click()
             return True
         except (NoSuchElementException, TimeoutException) as e:
-            print(f"Exception encountered: {e}")
             return False
 
     def refresh_page(self, timeout=40):
@@ -38,7 +36,6 @@ class PuddingWebDriver:
             self.driver.refresh()
             return True
         except (TimeoutException) as e:
-            print(f"Exception encountered: {e}")
             return False
 
     def send_keys(self, identifier, keys, timeout=10):
@@ -47,7 +44,16 @@ class PuddingWebDriver:
             element.send_keys(keys)
             return True
         except (NoSuchElementException, TimeoutException) as e:
-            print(f"Exception encountered: {e}")
+            return False
+        
+    def type_keys(self, identifier, keys, min_time_to_key, max_time_to_key, timeout=10):
+        try:
+            element = WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
+            for key in keys :
+                self.sleep_range(min_time_to_key, max_time_to_key)
+                element.send_keys(key)
+            return True
+        except (NoSuchElementException, TimeoutException) as e:
             return False
 
     def back(self):
@@ -55,6 +61,9 @@ class PuddingWebDriver:
 
     def forward(self):
         self.driver.forward()
+
+    def maximize(self) :
+        self.driver.maximize_window()
 
     def switch_tab(self, tab_index):
         if tab_index < len(self.driver.window_handles):
@@ -103,3 +112,6 @@ class PuddingWebDriver:
                 self.driver.install_addon(path)
             except FileNotFoundError:
                 print(f"File not found: {path}")
+
+    def execute_java_script(self, script) :
+        self.driver.execute_script(script)
