@@ -19,7 +19,7 @@ class PuddingWebDriver:
         try:
             WebDriverWait(self.driver, timeout).until(lambda x: title in x.title)
             return True
-        except (TimeoutException) as e:
+        except (TimeoutException):
             return False
 
     def click_element(self, identifier, timeout=10):
@@ -27,15 +27,14 @@ class PuddingWebDriver:
             element = WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
             element.click()
             return True
-        except (NoSuchElementException, TimeoutException) as e:
+        except (NoSuchElementException, TimeoutException):
             return False
 
     def refresh_page(self, timeout=40):
         try:
-            WebDriverWait(self.driver, timeout).until(EC.staleness_of(self.driver.current_url))
             self.driver.refresh()
             return True
-        except (TimeoutException) as e:
+        except (TimeoutException):
             return False
 
     def send_keys(self, identifier, keys, timeout=10):
@@ -43,19 +42,38 @@ class PuddingWebDriver:
             element = WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
             element.send_keys(keys)
             return True
-        except (NoSuchElementException, TimeoutException) as e:
+        except (NoSuchElementException, TimeoutException):
             return False
         
-    def type_keys(self, identifier, keys, min_time_to_key, max_time_to_key, timeout=10):
+    def type_keys(self, identifier, keys, min_time_to_key=0.1, max_time_to_key=0.2, timeout=10):
         try:
             element = WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
             for key in keys :
-                self.sleep_range(min_time_to_key, max_time_to_key)
                 element.send_keys(key)
+                if key == ' ' :
+                    self.sleep_range(min_time_to_key*3, max_time_to_key*3)
+                else :
+                    self.sleep_range(min_time_to_key, max_time_to_key)
+                    
             return True
-        except (NoSuchElementException, TimeoutException) as e:
+        except (NoSuchElementException, TimeoutException):
             return False
-
+        
+    def clear_element(self, identifier, timeout=10):
+        try:
+            element = WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
+            element.clear()
+            return True
+        except (NoSuchElementException, TimeoutException):
+            return False
+        
+    def get_attribute(self, element_identifier, attribute:str) :
+        try :
+            attribute_data = self.driver.find_element(element_identifier[0], element_identifier[1]).get_attribute(attribute)
+            return attribute_data
+        except : 
+            return False
+    
     def back(self):
         self.driver.back()
 
@@ -98,6 +116,9 @@ class PuddingWebDriver:
             print(f"Exception encountered: {e}")
             return False
         
+    def quit(self) :
+        self.driver.quit()
+        
     def add_cookies(self, cookies, domain) :
         for i in range(len(cookies)) :
             cookies[i]['domain'] = domain
@@ -105,6 +126,10 @@ class PuddingWebDriver:
                 self.driver.add_cookie(cookies[i])
             except :
                 pass
+
+    def get_cookies(self) :
+        cookies = self.driver.get_cookies()
+        return cookies
 
     def add_xpi_files(self, xpi_file_paths: list) :
         for path in xpi_file_paths:
@@ -114,4 +139,4 @@ class PuddingWebDriver:
                 print(f"File not found: {path}")
 
     def execute_java_script(self, script) :
-        self.driver.execute_script(script)
+        return self.driver.execute_script(script)
