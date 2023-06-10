@@ -67,12 +67,23 @@ class PuddingWebDriver:
         except (NoSuchElementException, TimeoutException):
             return False
         
+    def is_element_visible(self, identifier, timeout=10):
+        try:
+            WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located(identifier))
+            return True
+        except TimeoutException:
+            return False
+
+        
     def get_attribute(self, element_identifier, attribute:str) :
         try :
             attribute_data = self.driver.find_element(element_identifier[0], element_identifier[1]).get_attribute(attribute)
             return attribute_data
         except : 
             return False
+        
+    def get_title(self) -> str:
+        return self.driver.title
     
     def back(self):
         self.driver.back()
