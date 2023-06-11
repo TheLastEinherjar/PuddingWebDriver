@@ -1,7 +1,6 @@
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
 from selenium import webdriver
 import time
 import random
@@ -36,6 +35,31 @@ class PuddingWebDriver:
             return True
         except (TimeoutException):
             return False
+        
+    def close_other_tabs(self, tab_index:int=-1):
+        '''
+        closes all tabs except the specified one or the initial tab if no index is provided. 
+        '''
+        # Get the current window handle
+        initial_window_handle = self.driver.current_window_handle
+
+        # Get all window handles
+        all_window_handles = self.driver.window_handles
+
+        if tab_index != -1 :
+            # Iterate through the list of window handles and close the tabs that don't match the specified tab index
+            for index, window_handle in enumerate(all_window_handles):
+                if index != tab_index:
+                    self.driver.switch_to.window(window_handle)
+                    self.driver.close()
+        else :
+            for window_handle in all_window_handles :
+                if window_handle != initial_window_handle:
+                    self.driver.switch_to.window(window_handle)
+                    self.driver.close()
+            # Switch back to the initial window handle
+            self.driver.switch_to.window(initial_window_handle)
+
 
     def send_keys(self, identifier, keys, timeout=10):
         try:
@@ -49,7 +73,11 @@ class PuddingWebDriver:
         try:
             element = WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
             for key in keys :
-                element.send_keys(key)
+                try :
+                    element.send_keys(key)
+                except StaleElementReferenceException :
+                    element = WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
+                    element.send_keys(key)
                 if key == ' ' :
                     self.sleep_range(min_time_to_key*3, max_time_to_key*3)
                 else :
@@ -66,6 +94,10 @@ class PuddingWebDriver:
             return True
         except (NoSuchElementException, TimeoutException):
             return False
+        
+    def find_elements(self, identifier) :
+        elements = self.driver.find_elements(identifier[0], identifier[1])
+        return elements
         
     def is_element_visible(self, identifier, timeout=10):
         try:
