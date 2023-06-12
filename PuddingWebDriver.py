@@ -11,8 +11,12 @@ class PuddingWebDriver:
     class TabNotFoundError(Exception):
         pass
 
+    class IFrameNotFoundError(Exception) :
+        pass
+
     def __init__(self, driver:webdriver):
         self.driver = driver
+        self.page_load_timeout = 60
 
     def wait_for_title(self, title, timeout=40):
         try:
@@ -26,14 +30,18 @@ class PuddingWebDriver:
             element = WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
             element.click()
             return True
-        except (NoSuchElementException, TimeoutException):
+        except Exception:
             return False
 
     def refresh_page(self, timeout=40):
+        original_timeout = self.get_page_load_timeout()
         try:
+            self.set_page_load_timeout(timeout)
             self.driver.refresh()
+            self.set_page_load_timeout(original_timeout)
             return True
-        except (TimeoutException):
+        except TimeoutException:
+            self.set_page_load_timeout(original_timeout)
             return False
         
     def close_other_tabs(self, tab_index:int=-1):
@@ -95,10 +103,16 @@ class PuddingWebDriver:
         except (NoSuchElementException, TimeoutException):
             return False
         
-    def find_elements(self, identifier) :
-        elements = self.driver.find_elements(identifier[0], identifier[1])
-        return elements
+    def find_element(self, identifier) :
+        try :
+            element = self.driver.find_element(identifier[0], identifier[1])
+            return element
+        except NoSuchElementException :
+            return None
         
+    def find_elements(self, identifier) :
+        return self.driver.find_elements(identifier[0], identifier[1])
+            
     def is_element_visible(self, identifier, timeout=10):
         try:
             WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located(identifier))
@@ -133,7 +147,11 @@ class PuddingWebDriver:
             raise self.TabNotFoundError("Tab not found in window_handles")
 
     def set_page_load_timeout(self, timeout):
+        self.page_load_timeout = timeout
         self.driver.set_page_load_timeout(timeout)
+
+    def get_page_load_timeout(self):
+        return self.page_load_timeout
 
     def handle_alert(self, accept=True):
         try:
@@ -183,3 +201,18 @@ class PuddingWebDriver:
 
     def execute_java_script(self, script) :
         return self.driver.execute_script(script)
+    
+    def switch_iframe(self, identifier) :
+        if isinstance(identifier, tuple) :
+            target_iframe = self.find_element(identifier)
+            if not target_iframe :
+                raise self.IFrameNotFoundError(f"The IFrame {identifier} could not be found")
+        else :
+            target_iframe = identifier
+        self.driver.switch_to.frame(target_iframe)
+
+    def get_html(self) :
+        return self.driver.page_source
+
+    def switch_to_default_iframe(self) :
+        self.driver.switch_to.default_content()
