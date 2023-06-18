@@ -37,7 +37,8 @@ Welcome to the world of PuddingWebDriver, where tacos, robots, and death rays co
 - **Get HTML**: Get the HTML source code of the current page.
 - **Switch to Default IFrame**: Switch back to the default content of the page.
 
-### Usage
+## Usage
+
 
 1. Import the `PuddingWebDriver` class from the script.
 2. Create an instance of `PuddingWebDriver`, providing a Selenium WebDriver object as the argument.
