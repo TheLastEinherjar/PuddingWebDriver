@@ -60,13 +60,15 @@ class PuddingWebDriver:
                 if index != tab_index:
                     self.driver.switch_to.window(window_handle)
                     self.driver.close()
+                else :
+                    initial_window_handle = window_handle
         else :
             for window_handle in all_window_handles :
                 if window_handle != initial_window_handle:
                     self.driver.switch_to.window(window_handle)
                     self.driver.close()
-            # Switch back to the initial window handle
-            self.driver.switch_to.window(initial_window_handle)
+        # Switch back to the remaining window handle
+        self.driver.switch_to.window(initial_window_handle)
 
 
     def send_keys(self, identifier, keys, timeout=10):
@@ -119,6 +121,14 @@ class PuddingWebDriver:
             return True
         except TimeoutException:
             return False
+        
+    def is_element_clickable(self, identifier, timeout=10) :
+        try:
+            WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
+            return True
+        except TimeoutException:
+            return False
+
 
         
     def get_attribute(self, element_identifier, attribute:str) :
