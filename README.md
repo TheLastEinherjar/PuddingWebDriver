@@ -43,7 +43,7 @@ Welcome to the world of PuddingWebDriver, where tacos, robots, and death rays co
 2. Create an instance of `PuddingWebDriver`, providing a Selenium WebDriver object as the argument.
 3. Use the various methods and functionalities provided by `PuddingWebDriver` to enhance your web automation tasks.
 
-Example:
+## Example:
 ___
 
 ```py
