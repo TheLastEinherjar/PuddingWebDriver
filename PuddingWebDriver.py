@@ -22,7 +22,7 @@ class PuddingWebDriver:
         try:
             WebDriverWait(self.driver, timeout).until(lambda x: title in x.title)
             return True
-        except (TimeoutException):
+        except :
             return False
 
     def click_element(self, identifier, timeout=10):
@@ -121,14 +121,6 @@ class PuddingWebDriver:
             return True
         except TimeoutException:
             return False
-        
-    def is_element_clickable(self, identifier, timeout=10) :
-        try:
-            WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
-            return True
-        except TimeoutException:
-            return False
-
 
         
     def get_attribute(self, element_identifier, attribute:str) :
@@ -186,6 +178,12 @@ class PuddingWebDriver:
         except TimeoutException as e:
             print(f"Exception encountered: {e}")
             return False
+        
+    def new_tab(self, url='') :
+        self.execute_java_script(f'window.open("{url}");')
+        
+    def current_url(self) :
+        return self.driver.current_url
         
     def quit(self) :
         self.driver.quit()
