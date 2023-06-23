@@ -179,8 +179,10 @@ class PuddingWebDriver:
             print(f"Exception encountered: {e}")
             return False
         
-    def new_tab(self, url='') :
-        self.execute_java_script(f'window.open("{url}");')
+    def get_new_tab(self, url='') :
+        self.driver.switch_to.new_window('tab')
+        if url != '' :
+            self.get(url)
         
     def current_url(self) :
         return self.driver.current_url
