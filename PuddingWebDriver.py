@@ -121,7 +121,13 @@ class PuddingWebDriver:
             return True
         except TimeoutException:
             return False
-
+        
+    def is_element_clickable(self, identifier, timeout=10) :
+        try:
+            WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
+            return True
+        except TimeoutException:
+            return False
         
     def get_attribute(self, element_identifier, attribute:str) :
         try :
