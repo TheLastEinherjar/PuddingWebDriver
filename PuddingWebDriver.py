@@ -218,6 +218,9 @@ class PuddingWebDriver:
     def execute_java_script(self, script) :
         return self.driver.execute_script(script)
     
+    def get_pid(self) :
+        return self.driver.service.process.pid
+    
     def switch_iframe(self, identifier) :
         if isinstance(identifier, tuple) :
             target_iframe = self.find_element(identifier)
