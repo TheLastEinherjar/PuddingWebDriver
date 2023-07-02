@@ -1,4 +1,4 @@
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
 from selenium import webdriver
@@ -103,6 +103,24 @@ class PuddingWebDriver:
             element.clear()
             return True
         except (NoSuchElementException, TimeoutException):
+            return False
+        
+    def select_by_value(self, identifier, value) :
+        try :
+            element = self.driver.find_element(identifier[0], identifier[1])
+            selector = Select(element)
+            selector.select_by_value(value)
+            return True
+        except :
+            return False
+        
+    def select_by_index(self, identifier, index) :
+        try :
+            element = self.driver.find_element(identifier[0], identifier[1])
+            selector = Select(element)
+            selector.select_by_index(index)
+            return True
+        except :
             return False
         
     def find_element(self, identifier) :
