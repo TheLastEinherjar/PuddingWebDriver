@@ -24,6 +24,13 @@ class PuddingWebDriver:
             return True
         except :
             return False
+        
+    def wait_for_title_change(self, current_title, timeout=40):
+        try:
+            WebDriverWait(self.driver, timeout).until(lambda x: not (current_title in x.title))
+            return True
+        except :
+            return False
 
     def click_element(self, identifier, timeout=10):
         try:
@@ -208,15 +215,16 @@ class PuddingWebDriver:
         if url != '' :
             self.get(url)
         
-    def current_url(self) :
-        return self.driver.current_url
+    def current_url(self) -> str:
+        return str(self.driver.current_url)
         
     def quit(self) :
         self.driver.quit()
         
-    def add_cookies(self, cookies, domain) :
+    def add_cookies(self, cookies, domain:str=None) :
         for i in range(len(cookies)) :
-            cookies[i]['domain'] = domain
+            if domain :
+                cookies[i]['domain'] = domain
             try :
                 self.driver.add_cookie(cookies[i])
             except :
@@ -225,6 +233,9 @@ class PuddingWebDriver:
     def get_cookies(self) :
         cookies = self.driver.get_cookies()
         return cookies
+    
+    def clear_cookies(self) :
+        self.driver.delete_all_cookies()
 
     def add_xpi_files(self, xpi_file_paths: list) :
         for path in xpi_file_paths:
