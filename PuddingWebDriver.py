@@ -267,31 +267,39 @@ class PuddingWebDriver:
 
     def update_preferences(self, preferences:list[str, any]) :
         '''
-        Only works on FireFox
+        ### Opens about:config and attempts to add all options.
 
-        Opens about:config and attempts to add all options.
+        ---
+
+        Only works on FireFox, and plz do not use any single quotes
+
+        I dont know why I said plz I don't really care what you do...  but things will break.
         '''
         def preference_string(pref) :
             # Make the script work with any value type
             if type(pref[1]) is bool :
-                preference_script = f'Preferences.set("{str(pref[0])}", {str(pref[1]).lower()});\n'
+                preference_script = f"Preferences.set('{str(pref[0])}', {str(pref[1]).lower()});\n"
             elif type(pref[1]) is int :
-                preference_script = f'Preferences.set("{str(pref[0])}", {pref[1]});\n'
+                preference_script = f"Preferences.set('{str(pref[0])}', {pref[1]});\n"
             else :
-                preference_script = f'Preferences.set("{str(pref[0])}", "{str(pref[1])}");\n'
+                preference_script = f"Preferences.set('{str(pref[0])}', '{str(pref[1])}');\n"
 
             return preference_script
         
+        initial_window_handle = self.driver.current_window_handle
         self.get_new_tab('about:config')
         script = 'const { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");\n'
         for pref in preferences :
             script += preference_string(pref)
 
         try :
+            print(script)
             self.execute_java_script(script)
             self.close()
+            self.driver.switch_to.window(initial_window_handle)
             return True
         except Exception as e :
-            print(f'While setting prefrences: {e.__traceback__}')
+            print(f'While setting prefrences: {e}')
             self.close()
+            self.driver.switch_to.window(initial_window_handle)
             return False
