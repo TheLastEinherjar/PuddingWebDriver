@@ -1,7 +1,8 @@
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
-from selenium import webdriver
+from selenium.webdriver.remote.webelement import WebElement
+from seleniumwire import webdriver
 import time
 import random
 
@@ -22,14 +23,14 @@ class PuddingWebDriver:
         try:
             WebDriverWait(self.driver, timeout).until(lambda x: title in x.title)
             return True
-        except :
+        except TimeoutException :
             return False
         
     def wait_for_title_change(self, current_title, timeout=40):
         try:
             WebDriverWait(self.driver, timeout).until(lambda x: not (current_title in x.title))
             return True
-        except :
+        except TimeoutException :
             return False
 
     def click_element(self, identifier, timeout=10):
@@ -130,28 +131,35 @@ class PuddingWebDriver:
         except :
             return False
         
-    def find_element(self, identifier) :
+    def find_element(self, identifier) -> WebElement :
         try :
             element = self.driver.find_element(identifier[0], identifier[1])
             return element
         except NoSuchElementException :
             return None
         
-    def find_elements(self, identifier) :
+    def find_elements(self, identifier) -> list[WebElement] :
         return self.driver.find_elements(identifier[0], identifier[1])
             
-    def is_element_visible(self, identifier, timeout=10):
+    def is_element_visible(self, identifier, timeout=10) -> WebElement:
         try:
-            WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located(identifier))
-            return True
+            element = WebDriverWait(self.driver, timeout).until(EC.visibility_of_element_located(identifier))
+            return element
         except TimeoutException:
             return False
         
-    def is_element_clickable(self, identifier, timeout=10) :
+    def is_element_clickable(self, identifier, timeout=10) -> WebElement :
         try:
-            WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
-            return True
+            element = WebDriverWait(self.driver, timeout).until(EC.element_to_be_clickable(identifier))
+            return element
         except TimeoutException:
+            return False
+        
+    def is_element_present(self, identifier, timeout=10) -> WebElement :
+        try : 
+            element = WebDriverWait(self.driver, timeout).until(EC.presence_of_element_located(identifier))
+            return element
+        except TimeoutException : 
             return False
         
     def get_attribute(self, element_identifier, attribute:str) :
@@ -163,6 +171,9 @@ class PuddingWebDriver:
         
     def get_title(self) -> str:
         return self.driver.title
+    
+    def get_user_agent(self) -> str:
+        return self.execute_java_script("return navigator.userAgent")
     
     def back(self):
         self.driver.back()
@@ -220,6 +231,9 @@ class PuddingWebDriver:
         
     def quit(self) :
         self.driver.quit()
+
+    def close(self) :
+        self.driver.close()
         
     def add_cookies(self, cookies, domain:str=None) :
         for i in range(len(cookies)) :
@@ -244,8 +258,8 @@ class PuddingWebDriver:
             except FileNotFoundError:
                 print(f"File not found: {path}")
 
-    def execute_java_script(self, script) :
-        return self.driver.execute_script(script)
+    def execute_java_script(self, script, args=[]) :
+        return self.driver.execute_script(script, args)
     
     def get_pid(self) :
         return self.driver.service.process.pid
@@ -293,7 +307,6 @@ class PuddingWebDriver:
             script += preference_string(pref)
 
         try :
-            print(script)
             self.execute_java_script(script)
             self.close()
             self.driver.switch_to.window(initial_window_handle)
@@ -303,3 +316,10 @@ class PuddingWebDriver:
             self.close()
             self.driver.switch_to.window(initial_window_handle)
             return False
+        
+    def find_subelement(self, parent:WebElement, identifier) :
+        try :
+            element = parent.find_element(identifier[0], identifier[1])
+            return element
+        except NoSuchElementException :
+            return None
