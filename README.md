@@ -36,6 +36,8 @@ Welcome to the world of PuddingWebDriver, where tacos, robots, and death rays co
 - **Switch IFrame**: Switch to an iframe identified by a given identifier.
 - **Get HTML**: Get the HTML source code of the current page.
 - **Switch to Default IFrame**: Switch back to the default content of the page.
+- **Update Preferences**: Opens about:config and sets the new preferences.
+- **And More That I don't Feel Like Adding ;p**
 
 ## Usage
 
