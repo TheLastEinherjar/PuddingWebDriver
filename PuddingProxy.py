@@ -37,6 +37,9 @@ class PuddingProxy :
         return self.local_address, self.local_port
     
     def get_full_address(self) :
+        '''
+        returns the proxy address in username:password@address:port format.
+        '''
         return f'{self.username}:{self.password}@{self.address}:{self.port}'
 
     
