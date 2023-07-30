@@ -35,6 +35,9 @@ class PuddingProxy :
         threading.Thread(target=self.listen, daemon=True).start()
         self.local_address, self.local_port = self.server_socket.getsockname()
         return self.local_address, self.local_port
+    
+    def get_full_address(self) :
+        return f'{self.username}:{self.password}@{self.address}:{self.port}'
 
     
     def handle_client(self, connection):
