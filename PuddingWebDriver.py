@@ -27,6 +27,7 @@ class PuddingWebDriver:
             options.set_preference("network.proxy.type", 1)
             options.set_preference("network.proxy.socks", local_address)
             options.set_preference("network.proxy.socks_port", local_port)
+        self.proxy = proxy
         self.driver = webdriver.Firefox(options=options, service=service, keep_alive=keep_alive)
         self.page_load_timeout = 60
 
@@ -248,6 +249,7 @@ class PuddingWebDriver:
         
     def quit(self) :
         self.driver.quit()
+        self.proxy.kill()
 
     def close(self) :
         self.driver.close()
