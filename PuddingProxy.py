@@ -36,11 +36,20 @@ class PuddingProxy :
         self.local_address, self.local_port = self.server_socket.getsockname()
         return self.local_address, self.local_port
     
-    def get_full_address(self) :
+    def full_address(self) :
         '''
         returns the proxy address in username:password@address:port format.
         '''
         return f'{self.username}:{self.password}@{self.address}:{self.port}'
+    
+    def address_dict(self) :
+        data = {
+            "address" : self.address,
+            "port" : self.port,
+            "username" : self.username,
+            "password" : self.password
+        }
+        return data
 
     
     def handle_client(self, connection):
