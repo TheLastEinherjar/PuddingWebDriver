@@ -27,6 +27,10 @@ class PuddingWebDriver:
             options.set_preference("network.proxy.type", 1)
             options.set_preference("network.proxy.socks", local_address)
             options.set_preference("network.proxy.socks_port", local_port)
+
+            # set the navigator.geolocation.getCurrentPosition() response to that of the proxies ip address
+            options.set_preference("geo.provider.network.url", proxy.firefox_geo_data())
+            
         self.proxy = proxy
         self.driver = webdriver.Firefox(options=options, service=service, keep_alive=keep_alive)
         self.page_load_timeout = 60

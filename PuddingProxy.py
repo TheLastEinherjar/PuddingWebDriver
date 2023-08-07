@@ -2,30 +2,34 @@ import socket
 import threading
 import select
 import socks
-
+import json
+import requests
 
 SOCKS_VERSION = 5
 
 class PuddingProxy :
-
-    def __init__(self, address:str, port:int, username:str=None, password:str=None) :
+    def __init__(self, proxy_data:dict) :
         '''
         ### Creates a local host proxy without authentication, which is chained to a remote proxy.
         
         ---
-
-        * address => the socks5 ip address
-
-        * port => the socks port
-
-        * username => the username
-
-        * password => the password
+        like this though only address and port a required
+        "proxy": {
+            "address": "address",
+            "port": port,
+            "username": "username",
+            "password": "password",
+            "location": {
+                "latitude": 69.6969,
+                "longitude": -69.6969
+            }
+        }
         '''
-        self.address = address
-        self.port = port
-        self.username = username
-        self.password = password
+        self.address = proxy_data['address']
+        self.port = proxy_data['port']
+        self.username = proxy_data['username'] if 'username' in proxy_data else None
+        self.password = proxy_data['password'] if 'password' in proxy_data else None
+        self.location = proxy_data['location'] if 'location' in proxy_data else None
         self.server_socket = None
         self.client_connections = []
 
@@ -35,6 +39,42 @@ class PuddingProxy :
         threading.Thread(target=self.listen, daemon=True).start()
         self.local_address, self.local_port = self.server_socket.getsockname()
         return self.local_address, self.local_port
+    
+    def firefox_geo_data(self):
+        '''
+        Gets geo data string to overide geo.provider.network.url in firefox.
+
+        if location was not in the __init__ proxy_data it will get the data from ipwho.is
+        '''
+        def get_location_data():
+            # Send a request to ipwho.is to get the location information
+            response = requests.get(f'https://ipwho.is/{self.address}&output=json&fields=latitude,longitude')
+            data = response.json()
+
+            # Extract the latitude and longitude from the response
+            latitude = data.get("latitude")
+            longitude = data.get("longitude")
+
+            # Add the location information to the proxy dictionary
+            self.location = {
+                "latitude": latitude,
+                "longitude": longitude
+            }
+
+        def create_string() :
+            location_json = {
+                "accuracy": 25000,
+                "location": {
+                    "lat": round(self.location["latitude"], 7),
+                    "lng": round(self.location["longitude"], 7)
+                }
+            }
+            return f'data:application/json,{json.dumps(location_json, indent=2)}'.replace("\n", "")
+        
+        if not self.location :
+            get_location_data()
+        
+        return create_string()
     
     def full_address(self) :
         '''
