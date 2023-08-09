@@ -40,26 +40,39 @@ class PuddingProxy :
         self.local_address, self.local_port = self.server_socket.getsockname()
         return self.local_address, self.local_port
     
-    def firefox_geo_data(self):
+    def get_location_data(self):
+        # Send a request to ipwho.is to get the location information
+        print('Requesting Location Data From https://ipwho.is/')
+        response = requests.get(f'https://ipwho.is/{self.address}&output=json&fields=latitude,longitude')
+        data = response.json()
+
+        # Extract the latitude and longitude from the response
+        latitude = data.get("latitude")
+        longitude = data.get("longitude")
+
+        # Add the location information to the proxy dictionary
+        location = {
+            "latitude": latitude,
+            "longitude": longitude
+        }
+        return location
+    
+    def get_proxy_data(self) -> dict:
+        data = {
+            "address": self.address,
+            "port": self.port
+        }
+        if self.username : data['username'] = self.username
+        if self.password : data['password'] = self.password
+        data['location'] = self.location if self.location else self.get_location_data()
+        return data
+    
+    def get_firefox_geo_data(self):
         '''
         Gets geo data string to overide geo.provider.network.url in firefox.
 
         if location was not in the __init__ proxy_data it will get the data from ipwho.is
         '''
-        def get_location_data():
-            # Send a request to ipwho.is to get the location information
-            response = requests.get(f'https://ipwho.is/{self.address}&output=json&fields=latitude,longitude')
-            data = response.json()
-
-            # Extract the latitude and longitude from the response
-            latitude = data.get("latitude")
-            longitude = data.get("longitude")
-
-            # Add the location information to the proxy dictionary
-            self.location = {
-                "latitude": latitude,
-                "longitude": longitude
-            }
 
         def create_string() :
             location_json = {
@@ -72,7 +85,7 @@ class PuddingProxy :
             return f'data:application/json,{json.dumps(location_json, indent=2)}'.replace("\n", "")
         
         if not self.location :
-            get_location_data()
+            self.location = self.get_location_data()
         
         return create_string()
     
